@@ -3,9 +3,18 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SearchBooks from './pages/SearchBooks';
 import SavedBooks from './pages/SavedBooks';
 import Navbar from './components/Navbar';
-import { useQuery, gql } from '@apollo/client';
+import { GET_ALL } from './utils/queries';
+import { useQuery} from '@apollo/client';
 
 function App() {
+
+  const { loading, error, data } = useQuery(GET_ALL);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error asdasd : {error.message}        {error.name}</p>;
+  // console.log(data);
+
+
   return (
     <Router>
       <>

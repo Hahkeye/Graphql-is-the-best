@@ -13,52 +13,30 @@ const SignupForm = () => {
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
 
+  const [addUser, {data, loading, error}] = useMutation(ADD_USER);
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
   };
 
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
-
-    // check if form has everything (as per react-bootstrap docs)
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    try {
-      const [addUser, { data, loading, error }] = useMutation(ADD_USER);
-
-      if (loading) return 'Submitting...';
-      if (error) return `Submission error! ${error.message}`;
-      addUser({variables:{...userFormData}})
-      // const response = await createUser(userFormData);
-
-      // if (!response.ok) {
-      //   throw new Error('something went wrong!');
-      // }
-
-      const { token, user } = await response.json();
-      console.log(user);
-      Auth.login(token);
-    } catch (err) {
-      console.error(err);
-      setShowAlert(true);
-    }
-
-    setUserFormData({
-      username: '',
-      email: '',
-      password: '',
-    });
-  };
-
   return (
     <>
       {/* This is needed for the validation functionality above */}
-      <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
+      <Form noValidate validated={validated} onSubmit={async (e) => {
+        e.preventDefault();
+        // console.log("Username: ",e.currentTarget[0].value);
+        // console.log("Email: ",e.currentTarget[1].value);
+        // console.log("Password: ",e.currentTarget[2].value);
+        // console.log(e);
+        addUser({variables:{email: e.currentTarget[1].value, username: e.currentTarget[0].value, password: e.currentTarget[2].value}});
+        // console.log("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+        if (loading) return <p>Loading...</p>;
+        if (error) return <p>Error asdasd : {error.message} </p>;
+  // console.log(data);
+        console.log(data);
+
+      }}>
         {/* show alert if server response is bad */}
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
           Something went wrong with your signup!

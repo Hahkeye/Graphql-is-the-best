@@ -1,18 +1,18 @@
 import { gql } from "@apollo/client";
 
-const LOGIN_USER = gql`
+export const LOGIN_USER = gql`
 
 mutation Login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
+      token
       user {
-        email
-        password
+        _id
       }
     }
   }
 `;
 
-const ADD_USER = gql`
+export const ADD_USER = gql`
 
 mutation AddUser($username: String!, $email: String!, $password: String!) {
     addUser(username: $username, email: $email, password: $password) {
@@ -26,41 +26,41 @@ mutation AddUser($username: String!, $email: String!, $password: String!) {
 `;
 
 
-const SAVE_BOOK = gql`
+export const SAVE_BOOK = gql`
 
-mutation SaveBook($description: String!, $title: String!, $bookId: String!, $image: String!, $link: String!) {
-    saveBook(description: $description, title: $title, bookId: $bookId, image: $image, link: $link) {
-      savedBooks {
-        authors
-        bookId
-        title
-        image
-        link
-      }
+mutation SaveBook($description: String!, $title: String!, $bookId: String!,$image: String!,$authors: [String]) {
+  saveBook(description: $description, title: $title, bookId: $bookId, image: $image, authors: $authors) {
+    savedBooks {
+      authors
+      bookId
+      title
+      image
+      description
     }
   }
-  
-`;
-
-const REMOVE_BOOK = gql`
-
-
-
-mutation RemoveBook($bookId: String!) {
-    removeBook(bookId: $bookId) {
-      savedBooks {
-        bookId
-      }
-    }
-  }
-
-
-
-`;
-
-module.exports = {
-    LOGIN_USER,
-    ADD_USER,
-    SAVE_BOOK,
-    REMOVE_BOOK
 }
+`;
+
+export const REMOVE_BOOK = gql`
+
+
+
+mutation Mutation($bookId: String!) {
+  removeBook(bookId: $bookId) {
+    savedBooks {
+      bookId
+    }  
+  }
+}
+
+
+
+`;
+
+
+// module.exports = {
+//     LOGIN_USER,
+//     ADD_USER,
+//     SAVE_BOOK,
+//     REMOVE_BOOK
+// }

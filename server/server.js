@@ -3,16 +3,11 @@ const {ApolloServer} = require('@apollo/server');
 const { startStandaloneServer } = require("@apollo/server/standalone");
 const { GraphqlError } = require('graphql');
 const path = require('path');
-
-// const routes = require('./routes');
-
 const {typeDefs, resolvers} = require("./schemas");
 const db = require('./config/connection');
 const { Auth, User } = require('./models');
 const PORT = process.env.PORT || 3001;
-
-
-
+const app = express();
 
 const server = new ApolloServer({
   typeDefs,
@@ -21,15 +16,23 @@ const server = new ApolloServer({
 
 //check if user exists
 async function getUser(tok){
-  console.log("Token: ",tok);
-  if(!tok) return {message: "Failed Token Not present"};
+  // console.log("In get user");
   try{
+    // console.log("Find Auth by token");
+    // console.log("By token: ",tok);
     let c = await Auth.findOne({token: tok});
-    console.log("Does this token live in auth? ",c);
-    if(!c) return {message: "Failed Fake token"};
-    let user = await User.findById(c.user);
-    // console.log(user);
-    return user;
+    if(!c){
+      // console.log("Breakding because none found");
+      return null;
+    }
+    if(c){
+      // console.log("FInding user after found auth");
+      let user = await User.findById(c.user);
+      // console.log("User found after searching ",user);
+      return user;
+    }
+    // console.log("User: ",user);
+    
   }catch(err){
     console.log(err);
   }
@@ -39,46 +42,39 @@ async function getUser(tok){
 async function starts(){
   const { url } = await startStandaloneServer(server, {
       context: async ({req,res}) => {
-        const token = req.headers.authorization || '';
-        // console.log(token);
+        // console.log("Setting context");
+        const token = req.headers.authorization;
         const user = await getUser(token);
-        // if (!user){
-        //   throw new GraphqLError('User is not authenticated', {
-        //     extensions: {
-        //       code: 'UNAUTHENTICATED',
-        //       http: { status: 401 },
-        //     },
-        //   });
-        // }
-        return {user};
+        // console.log("Context header: ",req.headers);
+        // console.log("Context token: ",token);
+        // console.log("USER : ",user);
+        return { user };
       }
     }
 
   );
+  // if (process.env.NODE_ENV === 'production') {
+  //   console.log("we proding");
+  //   app.use(express.static(path.join(__dirname, '../client/build')));
+  // }
+  
+  // app.use(express.static(path.join(__dirname, '../client/public/')));
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
+  app.use(express.static(path.join(__dirname, '../client/build')));
+  app.use((req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  });
+  // app.use(express.static(path.join(__dirname, '../client/build')));
 
-  console.log(url);
+
+  db.once('open', () => {
+    app.listen(PORT, () => console.log(`🌍 Front end listening on http://localhost:${PORT}`));
+    console.log("Apollo Listening on http://localhost:4000");
+  });
+
+  // console.log(url);
 }
 
 starts();
-// const app = express();
-// app.use(express.urlencoded({ extended: true }));
-// app.use(express.json());
 
-
-
-// const startApollo = async (typeDefs,resolvers) => {
-//   await server.start();
-//   server.applyMiddleware({app});
-//   if (process.env.NODE_ENV === 'production') {
-//     app.use(express.static(path.join(__dirname, '../client/build')));
-//   }
-  
-//   db.once('open', () => {
-//     app.listen(PORT, () => console.log(`🌍 Now listening on http://localhost:${PORT}/graphql`));
-//   });
-  
-// }
-
-
-// startApollo(typeDefs,resolvers);
-// if we're in production, serve client/build as static assets

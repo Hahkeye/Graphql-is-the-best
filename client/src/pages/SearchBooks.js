@@ -17,6 +17,10 @@ const SearchBooks = () => {
   // const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
   // const [savedBookIds, setSavedBookIds] = useMutation(getSavedBookIds());
 
+  const [saveBook, {data, loading, error}] = useMutation(SAVE_BOOK);
+  // if(loading) return "Submitting....";
+  // if(error) return 'Submission';
+
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
@@ -50,38 +54,6 @@ const SearchBooks = () => {
 
       setSearchedBooks(bookData);
       setSearchInput('');
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // create function to handle saving a book to our database
-  const handleSaveBook = async (bookId) => {
-    // find the book in `searchedBooks` state by the matching id
-    const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
-
-    // get token
-    // const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-    // if (!token) {
-    //   return false;
-    // }
-
-    try {
-      // const response = await saveBook(bookToSave, token);
-  
-      const [saveBook, {data,loading,error}] = useMutation(SAVE_BOOK);
-      if(loading) return "Submitting....";
-      if(error) return 'Submission';
-      saveBook({variables:{...bookToSave}});
-      // const response = await S
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      // if book successfully saves to user's account, save book id to state
-      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
       console.error(err);
     }
@@ -135,7 +107,16 @@ const SearchBooks = () => {
                     <Button
                       disabled={savedBookIds?.some((savedBookId) => savedBookId === book.bookId)}
                       className='btn-block btn-info'
-                      onClick={() => handleSaveBook(book.bookId)}>
+                      onClick={async (e) => {
+                        // console.log("BookId: ",this);
+                        // const bookToSave = searchedBooks.find((book) => book.bookId === this.bookId);
+                        // console.log("save books ",saveBookIds);
+                        // setSavedBookIds([...saveBookIds,book.bookId])
+                        saveBook({variables:{bookId: book.bookId,description: book.description,title: book.title,image: book.image,authors: book.authors}});
+                        if(loading) return "Submitting....";
+                        if(error) return `error ${error.message}`;
+                        // console.log(data);
+                      }}>
                       {savedBookIds?.some((savedBookId) => savedBookId === book.bookId)
                         ? 'This book has already been saved!'
                         : 'Save this Book!'}

@@ -18,7 +18,7 @@ export const removeBookId = (bookId) => {
   const savedBookIds = localStorage.getItem('saved_books')
     ? JSON.parse(localStorage.getItem('saved_books'))
     : null;
-
+  window.location = "/saved";
   if (!savedBookIds) {
     return false;
   }
