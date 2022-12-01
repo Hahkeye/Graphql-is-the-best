@@ -35,6 +35,7 @@ const SignupForm = () => {
         if (error) return <p>Error asdasd : {error.message} </p>;
   // console.log(data);
         console.log(data);
+        window.location.assign("/");
 
       }}>
         {/* show alert if server response is bad */}

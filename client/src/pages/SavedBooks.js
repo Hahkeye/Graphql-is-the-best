@@ -17,15 +17,7 @@ const SavedBooks = () => {
   const { loading, error, data} = useQuery(GET_ME);
   if(loading) return "Submitting....";
   if(error) return `error: ${error.message}`;
-  // console.log("data", data);
-  // console.log("loadinmg ", loading);
-  // console.log("error ", error);
-  
 
-  // if data isn't here yet, say so
-  // if (!userDataLength) {
-  //   return <h2>LOADING...</h2>;
-  // }
 
   return (
     <>
